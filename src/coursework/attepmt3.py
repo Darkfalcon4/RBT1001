@@ -134,6 +134,8 @@ class InverseKinematics(Node):
             self.target_configuration = [q1,q2,q3,q4,q5,q6,q7]
 
             print(self.target_configuration)
+            global target_position
+            target_position = self.target_configuration
 
     def gripper_motion(self, motion="close"):
         goal_msg = PlayMotion2.Goal()
@@ -152,7 +154,7 @@ class MinimalPublisher(Node):
 
         self.last_state = None
         self.joint_idx = {}
-
+        #self.target_position = target_position
         # subscriber to joint states
         self.js_pub = self.create_subscription(
             JointState,
@@ -184,8 +186,8 @@ class MinimalPublisher(Node):
             self.send_commands(traj_msg)
             self.i += 1
 
-    def compute_joint_trajectory(self, target_position):
-
+    def compute_joint_trajectory(self):
+        #target_position = self.target_position
         # get initial position
         initial_state = self.last_state
         initial_position = [
@@ -330,7 +332,7 @@ class MinimalPublisher(Node):
 def main():
     rclpy.init()
     node = InverseKinematics("arm_1_link", "B")
-    node2 = MinimalPublisher
+    # node2 = MinimalPublisher(target_position)
 
     while node.target_configuration is None:
         try:
@@ -343,9 +345,13 @@ def main():
     rclpy.spin_until_future_complete(node, future)
     time.sleep(5)
     
-    target_position = node.target_configuration
-    move = node2.compute_joint_trajectory(target_position)
-    rclpy.spin_until_future_complete(node2, move)
+    #target_position = node.target_configuration
+    # move = node2.compute_joint_trajectory()
+    node2 = MinimalPublisher()
+    rclpy.spin(node2)
+    #rclpy.spin_once(node2)
+    # move = node2.compute_joint_trajectory()
+    # rclpy.spin_until_future_complete(node2, move)
 
     # close the gripper
     future = node.gripper_motion("close")
