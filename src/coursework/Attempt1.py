@@ -1,8 +1,5 @@
 import numpy as np
 import time
-import trap_trajectory as trap
-import viz_trajectory as viz
-
 from sympy import Matrix
 import rclpy
 from rclpy.node import Node
@@ -14,35 +11,10 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
 from play_motion2_msgs.action import PlayMotion2
 
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from sensor_msgs.msg import JointState
-
 # import our own modules
 from transformations import HT, HR
 
-# max speeds for each joint
-max_speed = np.array([
-    18.0,
-    18.0,
-    22.0,
-    22.0,
-    17.0,
-    17.0,
-    17.0
-])
-# rpm to rad/s
-max_speed = max_speed / 60.0 * 2 * np.pi
 
-# The position our arm should reach
-target_position = [
-    0.6496184220867192,    #arm_1_joint
-    -1.1910595388819816,  #arm_2_joint
-    -3.141592653589793,  #arm_3_joint
-    1.7904987228240348,   #arm_4_joint
-    -0.,  #arm_5_joint
-    -0.,  #arm_6_joint
-    -0.   #arm_7_joint
-]
 class InverseKinematics(Node):
     def __init__(self, base_frame, target_frame):
         super().__init__('inverse_kinematics_node')
@@ -73,26 +45,6 @@ class InverseKinematics(Node):
 
         period = 1
         self.timer = self.create_timer(period, self.get_transform)
-                # publisher for joint command
-        self.publisher_ = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
-
-        self.last_state = None
-        self.joint_idx = {}
-
-        # subscriber to joint states
-        self.js_pub = self.create_subscription(
-            JointState,
-            "/joint_states",
-            self.js_cb,
-            10
-        )
-        
-        # initialise visualisation module
-        viz.init(self)
-
-        # period = 0.5
-        self.i = 0
-        # self.timer = self.create_timer(period, self.timer_cb)
 
     # joints state callback
     def js_cb(self, msg):
@@ -151,7 +103,7 @@ class InverseKinematics(Node):
 
             # cos q4 and sin q4
             c4 = (target_2[0]**2 + target_2[1]**2 - l1**2 - l2**2)/(2*l1 * l2)
-            s4 = np.sqrt(1 - c4) #set minus to change elbow-up
+            s4 = np.sqrt(1 - c4) # make minus for elbow-up
             q4 = np.arctan2(s4, c4) # elbow
 
             q2 = np.arctan2(target_2[1], target_2[0]) - np.arctan2(l2*s4, l1+l2*c4) # shoulder
@@ -167,7 +119,7 @@ class InverseKinematics(Node):
 
             print(self.target_configuration)
 
-    def gripper_motion(self, motion="open"):
+    def gripper_motion(self, motion="close"):
         goal_msg = PlayMotion2.Goal()
         goal_msg.motion_name = motion
         self.gripper_action.wait_for_server()
