@@ -122,8 +122,10 @@ class InverseKinematics(Node):
             self.target_configuration = [q1,q2,q3,q4,q5,q6,q7]
 
             print(self.target_configuration)
-            global target_position
-            target_position = self.target_configuration
+            global target_positions
+            target_positions = self.target_configuration
+            # target_positions = []
+            # target_positions.append(target_position)
 
     def gripper_motion(self, motion="close"):
         goal_msg = PlayMotion2.Goal()
@@ -135,8 +137,6 @@ class InverseKinematics(Node):
 def main():
     rclpy.init()
     nodeA = InverseKinematics("arm_1_link", "A")
-    nodeB = InverseKinematics("arm_1_link", "B")
-    nodeC = InverseKinematics("arm_1_link", "C")
     # node2 = MinimalPublisher(target_position)
 
     while nodeA.target_configuration is None:
@@ -145,18 +145,34 @@ def main():
         except KeyboardInterrupt:
             break
 
-    # open the gripper
-    future = nodeA.gripper_motion("open")
-    rclpy.spin_until_future_complete(nodeA, future)
-    time.sleep(5)
+    # nodeB = InverseKinematics("arm_1_link", "B")
+
+    # while nodeB.target_configuration is None:
+    #     try:
+    #         rclpy.spin_once(nodeA)
+    #     except KeyboardInterrupt:
+    #         break
     
-    node2 = MinimalPublisher(target_position)
+    # nodeC = InverseKinematics("arm_1_link", "B")
+
+    # while nodeC.target_configuration is None:
+    #     try:
+    #         rclpy.spin_once(nodeA)
+    #     except KeyboardInterrupt:
+    #         break
+
+    # open the gripper
+    # future = nodeA.gripper_motion("open")
+    # rclpy.spin_until_future_complete(nodeA, future)
+    # time.sleep(5)
+    print("targ ", target_positions)
+    node2 = MinimalPublisher(target_positions)
     rclpy.spin(node2)
 
     # close the gripper
-    future = nodeA.gripper_motion("close")
-    rclpy.spin_until_future_complete(nodeA, future)
-    time.sleep(5)
+    # future = nodeA.gripper_motion("close")
+    # rclpy.spin_until_future_complete(nodeA, future)
+    # time.sleep(5)
 
     # TODO execute other trajectories
 

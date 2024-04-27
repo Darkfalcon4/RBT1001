@@ -26,10 +26,10 @@ max_speed = max_speed / 60.0 * 2 * np.pi
 
 class MinimalPublisher(Node):
 
-    def __init__(self, target_position):
+    def __init__(self, target_positions):
         super().__init__('joint_commander')
         
-        self.target_position = target_position
+        self.target_positions = target_positions
         
         # publisher for joint command
         self.publisher_ = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
@@ -69,8 +69,12 @@ class MinimalPublisher(Node):
             self.i += 1
 
     def compute_joint_trajectory(self):
-        global target_position
-        target_position = self.target_position
+        #global target_position
+        target_positions = self.target_positions
+        target_positionA = target_positions
+        # target_positionB = target_positions[1]
+        # target_positionC = target_positions[2]
+
         # get initial position
         initial_state = self.last_state
         initial_position = [
@@ -88,7 +92,7 @@ class MinimalPublisher(Node):
         print("Max speed: {}".format(qdmax))
 
         # find the joint with the largest distance to target
-        dists = [q[1] - q[0] for q in zip(initial_position, target_position)]
+        dists = [q[1] - q[0] for q in zip(initial_position, target_positionA)]#, target_positionB, target_positionC)]
         abs_dists = [abs(d) for d in dists]
         max_dist_idx = np.argmax(abs_dists) # get the index
 
@@ -102,7 +106,7 @@ class MinimalPublisher(Node):
         
         # compute trapezoidal profile for all joints
         trajectory = {}
-        for i, (q0, qf) in enumerate(zip(initial_position, target_position)):
+        for i, (q0, qf) in enumerate(zip(initial_position, target_positions)):
 
             # here use the lspb function
             ts, q, qd, ok = trap.lspb(total_time, q0, qf, qdmax, ticks)
