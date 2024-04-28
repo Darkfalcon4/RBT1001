@@ -93,7 +93,7 @@ class MinimalPublisher(Node):
         # assume that all the joints move with speed equal to the lowest maximum speed of all joints
         qdmax = max_speed[-1]
         print("Max speed: {}".format(qdmax))
-
+    #for x in range(3):
         # find the joint with the largest distance to target
         dists = [q[1] - q[0] for q in zip(initial_position, target_positionA, target_positionB, target_positionC)]
         abs_dists = [abs(d) for d in dists]
