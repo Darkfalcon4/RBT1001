@@ -59,22 +59,24 @@ class MinimalPublisher(Node):
             return 
 
         if self.i == 0:
-            trajectory, times = self.compute_joint_trajectory()
-            traj_msg = self.to_JointTrajectory(trajectory, times)
-            viz.display(self, traj_msg)
-            viz.display(self, traj_msg)
-            # time.sleep(5)
-            self.plot(trajectory, times)
-            self.send_commands(traj_msg)
-            self.i += 1
+            target_positions =self.target_positions
+            for x in range(3):
+                trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
+                traj_msg = self.to_JointTrajectory(trajectory, times)
+                viz.display(self, traj_msg)
+                viz.display(self, traj_msg)
+                # time.sleep(5)
+                self.plot(trajectory, times)
+                self.send_commands(traj_msg)
+                self.i += 1
 
-    def compute_joint_trajectory(self):
+    def compute_joint_trajectory(self, target_positions):
         #global target_position
-        target_positions = self.target_positions
-        target_positionA = target_positions[0][:7]
-        target_positionB = target_positions[1][:7]
-        target_positionC = target_positions[2][:7]
-        print("targ2 ", target_positionA)
+        # target_positions = self.target_positions
+        # target_positionA = target_positions[0][:7]
+        # target_positionB = target_positions[1][:7]
+        # target_positionC = target_positions[2][:7]
+        
         # target_positionB = target_positions[1]
         # target_positionC = target_positions[2]
 
@@ -95,7 +97,7 @@ class MinimalPublisher(Node):
         print("Max speed: {}".format(qdmax))
     #for x in range(3):
         # find the joint with the largest distance to target
-        dists = [q[1] - q[0] for q in zip(initial_position, target_positionA, target_positionB, target_positionC)]
+        dists = [q[1] - q[0] for q in zip(initial_position, target_positions)]
         abs_dists = [abs(d) for d in dists]
         max_dist_idx = np.argmax(abs_dists) # get the index
 
@@ -109,7 +111,7 @@ class MinimalPublisher(Node):
         
         # compute trapezoidal profile for all joints
         trajectory = {}
-        for i, (q0, qf) in enumerate(zip(initial_position, target_positionA)):
+        for i, (q0, qf) in enumerate(zip(initial_position, target_positions)):
 
             # here use the lspb function
             ts, q, qd, ok = trap.lspb(total_time, q0, qf, qdmax, ticks)
