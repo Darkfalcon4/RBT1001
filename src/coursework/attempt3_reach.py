@@ -61,6 +61,7 @@ class MinimalPublisher(Node):
         if self.i == 0:
             target_positions =self.target_positions
             for x in range(3):
+                #global x
                 trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
                 traj_msg = self.to_JointTrajectory(trajectory, times)
                 viz.display(self, traj_msg)
@@ -91,7 +92,8 @@ class MinimalPublisher(Node):
             initial_state.position[self.joint_idx["arm_6_joint"]],
             initial_state.position[self.joint_idx["arm_7_joint"]]
         ]
-        
+        #if x >= 1:
+            #initial_position = target_positions[x-1][::]
         # assume that all the joints move with speed equal to the lowest maximum speed of all joints
         qdmax = max_speed[-1]
         print("Max speed: {}".format(qdmax))
