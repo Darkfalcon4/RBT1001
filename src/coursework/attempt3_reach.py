@@ -59,10 +59,10 @@ class MinimalPublisher(Node):
             return 
 
         if self.i == 0:
-            target_positions =self.target_positions
-            for x in range(3):
+                target_positions =self.target_positions
+            #for x in range(3):
                 #global x
-                trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
+                trajectory, times = self.compute_joint_trajectory(target_positions)#[x][::])
                 traj_msg = self.to_JointTrajectory(trajectory, times)
                 viz.display(self, traj_msg)
                 viz.display(self, traj_msg)

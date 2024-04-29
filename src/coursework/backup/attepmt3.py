@@ -10,10 +10,14 @@ from tf2_ros.transform_listener import TransformListener
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
 from play_motion2_msgs.action import PlayMotion2
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from sensor_msgs.msg import JointState
+import trap_trajectory as trap
+import viz_trajectory as viz
 
 # import our own modules
 from transformations import HT, HR
-
+from attempt3_reach import MinimalPublisher
 
 class InverseKinematics(Node):
     def __init__(self, base_frame, target_frame):
@@ -39,7 +43,7 @@ class InverseKinematics(Node):
 
         self.current_configuration = None
         self.target_configuration = None
-
+        
         # to open/close the gripper
         self.gripper_action = ActionClient(self, PlayMotion2, 'play_motion2')
 
@@ -118,6 +122,9 @@ class InverseKinematics(Node):
             self.target_configuration = [q1,q2,q3,q4,q5,q6,q7]
 
             print(self.target_configuration)
+            global target_position
+            target_position = self.target_configuration
+            
 
     def gripper_motion(self, motion="close"):
         goal_msg = PlayMotion2.Goal()
@@ -127,7 +134,24 @@ class InverseKinematics(Node):
         return self.gripper_action.send_goal_async(goal_msg)
 
 def main():
+    target_positions = []
     rclpy.init()
+    node = InverseKinematics("arm_1_link", "A")
+    # node2 = MinimalPublisher(target_position)
+
+    while node.target_configuration is None:
+        try:
+            rclpy.spin_once(node)
+        except KeyboardInterrupt:
+            break
+    
+    
+    target_positions.append(target_position)
+    # node2 = MinimalPublisher(target_positions[-1][:7])
+    # rclpy.spin(node2)
+
+    node.destroy_node()
+
     node = InverseKinematics("arm_1_link", "B")
 
     while node.target_configuration is None:
@@ -136,17 +160,38 @@ def main():
         except KeyboardInterrupt:
             break
 
+    target_positions.append(target_position)
+    # node2 = MinimalPublisher(target_positions[-1][:7])
+    # rclpy.spin(node2)
+    # node2.destroy_node()
+
+    node.destroy_node()
+
+    node = InverseKinematics("arm_1_link", "C")
+
+    while node.target_configuration is None:
+        try:
+            rclpy.spin_once(node)
+        except KeyboardInterrupt:
+            break
+
+    target_positions.append(target_position)
+    node2 = MinimalPublisher(target_positions)#[-1][:7])
+    rclpy.spin(node2)
+
+    node.destroy_node()
+
     # open the gripper
-    future = node.gripper_motion("open")
-    rclpy.spin_until_future_complete(node, future)
-    time.sleep(5)
+    # future = nodeA.gripper_motion("open")
+    # rclpy.spin_until_future_complete(nodeA, future)
+    # time.sleep(5)
+    print("targ ", target_positions)
     
-    # TODO execute the trajectory to target point
 
     # close the gripper
-    future = node.gripper_motion("close")
-    rclpy.spin_until_future_complete(node, future)
-    time.sleep(5)
+    # future = nodeA.gripper_motion("close")
+    # rclpy.spin_until_future_complete(nodeA, future)
+    # time.sleep(5)
 
     # TODO execute other trajectories
 

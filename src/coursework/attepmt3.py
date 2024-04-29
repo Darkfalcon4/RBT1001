@@ -134,58 +134,66 @@ class InverseKinematics(Node):
         return self.gripper_action.send_goal_async(goal_msg)
 
 def main():
-    target_positions = []
+    # target_positions = []
     rclpy.init()
-    node = InverseKinematics("arm_1_link", "A")
+    nodeA = InverseKinematics("arm_1_link", "A")
     # node2 = MinimalPublisher(target_position)
 
     while node.target_configuration is None:
         try:
-            rclpy.spin_once(node)
+            rclpy.spin_once(nodeA)
         except KeyboardInterrupt:
             break
     
     
-    target_positions.append(target_position)
-    # node2 = MinimalPublisher(target_positions[-1][:7])
-    # rclpy.spin(node2)
-
-    node.target_configuration = None
-
-    node = InverseKinematics("arm_1_link", "B")
+    # target_positions.append(target_position)
+    target_positions = target_position 
+    node2 = MinimalPublisher(target_positions)
+    rclpy.spin(node2)
+ 
+    node2.destroy_node()
+    # node.destroy_node()
+    nodeB = InverseKinematics("arm_1_link", "B")
 
     while node.target_configuration is None:
         try:
-            rclpy.spin_once(node)
+            rclpy.spin_once(nodeB)
         except KeyboardInterrupt:
             break
 
-    target_positions.append(target_position)
+    # target_positions.append(target_position)
     # node2 = MinimalPublisher(target_positions[-1][:7])
     # rclpy.spin(node2)
     # node2.destroy_node()
+    target_positions = target_position 
+    node2 = MinimalPublisher(target_positions)
+    rclpy.spin_once(node2)
+ 
+    
+    node2.destroy_node()
+    node.destroy_node()
 
-    node.target_configuration = None
+    # node = InverseKinematics("arm_1_link", "C")
 
-    node = InverseKinematics("arm_1_link", "C")
+    # while node.target_configuration is None:
+    #     try:
+    #         rclpy.spin_once(node)
+    #     except KeyboardInterrupt:
+    #         break
 
-    while node.target_configuration is None:
-        try:
-            rclpy.spin_once(node)
-        except KeyboardInterrupt:
-            break
-
-    target_positions.append(target_position)
-    node2 = MinimalPublisher(target_positions)#[-1][:7])
-    rclpy.spin(node2)
-
-    node.target_configuration = None
+    # target_positions = target_position 
+    # node2 = MinimalPublisher(target_positions)
+    # rclpy.spin_once(node2)
+ 
+    # node.destroy_node()
+    # node2.destroy_node()
+   
 
     # open the gripper
     # future = nodeA.gripper_motion("open")
     # rclpy.spin_until_future_complete(nodeA, future)
     # time.sleep(5)
-    print("targ ", target_positions)
+    # print("targ ", target_positions)
     
 
     # close the gripper
