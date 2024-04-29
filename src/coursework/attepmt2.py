@@ -136,7 +136,7 @@ class InverseKinematics(Node):
 def main():
     # target_positions = []
     rclpy.init()
-    nodeA = InverseKinematics("arm_1_link", "C")
+    nodeA = InverseKinematics("arm_1_link", "B")
     # node2 = MinimalPublisher(target_position)
 
     while nodeA.target_configuration is None:
@@ -203,9 +203,8 @@ def main():
 
     # TODO execute other trajectories
 
-   
-   
+    return True
     
-if __name__== "__main__":
-    main()
-    print("EE")
+   
+# if __name__== "__main__":
+#     main()

@@ -210,8 +210,8 @@ class MinimalPublisher(Node):
 
         self.publisher_.publish(joint_traj_msg)
         self.get_logger().info('Publishing commands')
-
-
+        exit()
+ 
     # joints state callback
     def js_cb(self, msg):
 
@@ -239,4 +239,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    main()
+       main()
