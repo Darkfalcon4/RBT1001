@@ -59,7 +59,7 @@ class MinimalPublisher(Node):
             return 
 
         if self.i == 0:
-            target_positions =self.target_positions
+            target_positions = self.target_positions
             for x in range(3):
                 #global x
                 trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
@@ -70,6 +70,7 @@ class MinimalPublisher(Node):
                 self.plot(trajectory, times)
                 self.send_commands(traj_msg)
                 self.i += 1
+                self.last_state = target_positions[x][::]
 
     def compute_joint_trajectory(self, target_positions):
         #global target_position
@@ -210,6 +211,7 @@ class MinimalPublisher(Node):
 
         self.publisher_.publish(joint_traj_msg)
         self.get_logger().info('Publishing commands')
+        return
 
 
     # joints state callback
