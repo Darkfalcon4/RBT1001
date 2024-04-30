@@ -59,22 +59,10 @@ class MinimalPublisher(Node):
             return 
 
         if self.i == 0:
-            target_positions = self.target_positions
-            # initial_state = self.last_state
-            # initial_pos = [
-            #     initial_state.position[self.joint_idx["arm_1_joint"]],
-            #     initial_state.position[self.joint_idx["arm_2_joint"]],
-            #     initial_state.position[self.joint_idx["arm_3_joint"]],
-            #     initial_state.position[self.joint_idx["arm_4_joint"]],
-            #     initial_state.position[self.joint_idx["arm_5_joint"]],
-            #     initial_state.position[self.joint_idx["arm_6_joint"]],
-            #     initial_state.position[self.joint_idx["arm_7_joint"]]
-            # ]
-            # target_positions.append(initial_pos)
-            for x in range(3):
-                initial_position = target_positions[x-1][::]
+                target_positions =self.target_positions
+            #for x in range(3):
                 #global x
-                trajectory, times = self.compute_joint_trajectory(initial_position, target_positions[x][::])
+                trajectory, times = self.compute_joint_trajectory(target_positions)#[x][::])
                 traj_msg = self.to_JointTrajectory(trajectory, times)
                 viz.display(self, traj_msg)
                 viz.display(self, traj_msg)
@@ -82,10 +70,8 @@ class MinimalPublisher(Node):
                 self.plot(trajectory, times)
                 self.send_commands(traj_msg)
                 self.i += 1
-                time.sleep(total_time+1)
 
-    def compute_joint_trajectory(self, initial_position, target_positions):
-        global total_time
+    def compute_joint_trajectory(self, target_positions):
         #global target_position
         # target_positions = self.target_positions
         # target_positionA = target_positions[0][:7]
@@ -224,9 +210,7 @@ class MinimalPublisher(Node):
 
         self.publisher_.publish(joint_traj_msg)
         self.get_logger().info('Publishing commands')
-        return
-
-
+ 
     # joints state callback
     def js_cb(self, msg):
 
@@ -254,4 +238,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    main()
+       main()

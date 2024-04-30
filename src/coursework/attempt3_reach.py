@@ -123,6 +123,7 @@ class MinimalPublisher(Node):
 
                 ts, q, qd, ok = trap.lspb(total_time, q0, qf, new_qdmax, ticks)
                 self.get_logger().info('{}: {}'.format(i, ok))
+                print("H")
                 # # hack continuing at max speed
                 # new_ticks = int(abs(qf - q0) / ((total_time / ticks) * abs(qdmax))) + 1
                 # if new_ticks > 1:
@@ -210,7 +211,7 @@ class MinimalPublisher(Node):
 
         self.publisher_.publish(joint_traj_msg)
         self.get_logger().info('Publishing commands')
-        exit()
+        
  
     # joints state callback
     def js_cb(self, msg):

@@ -17,7 +17,7 @@ import viz_trajectory as viz
 
 # import our own modules
 from transformations import HT, HR
-from attempt3_reach import MinimalPublisher
+from attempt4_reach import MinimalPublisher
 
 class InverseKinematics(Node):
     def __init__(self, base_frame, target_frame):
@@ -151,7 +151,7 @@ def main():
     # rclpy.spin(node2)
 
     node.destroy_node()
-    # node.current_configuration = target_positions[-1][::]
+
     node = InverseKinematics("arm_1_link", "B")
 
     while node.target_configuration is None:
@@ -166,7 +166,7 @@ def main():
     # node2.destroy_node()
 
     node.destroy_node()
-    node.current_configuration = target_positions[-1][::]
+
     node = InverseKinematics("arm_1_link", "C")
 
     while node.target_configuration is None:
@@ -176,7 +176,7 @@ def main():
             break
 
     target_positions.append(target_position)
-    node2 = MinimalPublisher(target_positions)#[-1][:7])
+    node2 = MinimalPublisher(target_positions[-1][:7])
     rclpy.spin(node2)
 
     node.destroy_node()
