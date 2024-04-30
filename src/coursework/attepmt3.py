@@ -150,7 +150,7 @@ def main():
     nodeA_target_position = nodeA.target_configuration
     node2 = MinimalPublisher(nodeA_target_position)
     rclpy.spin(node2)
-    rclpy.shutdown()
+    #rclpy.shutdown()
     node2.destroy_node()
     nodeA.destroy_node()
     # nodeB = InverseKinematics("arm_1_link", "B")

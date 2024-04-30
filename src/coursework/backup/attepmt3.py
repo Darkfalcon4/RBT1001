@@ -136,6 +136,7 @@ class InverseKinematics(Node):
 def main():
     target_positions = []
     rclpy.init()
+
     node = InverseKinematics("arm_1_link", "A")
     # node2 = MinimalPublisher(target_position)
 
@@ -150,7 +151,7 @@ def main():
     # node2 = MinimalPublisher(target_positions[-1][:7])
     # rclpy.spin(node2)
 
-    node.destroy_node()
+    # node.destroy_node()
     # node.current_configuration = target_positions[-1][::]
     node = InverseKinematics("arm_1_link", "B")
 
@@ -165,7 +166,7 @@ def main():
     # rclpy.spin(node2)
     # node2.destroy_node()
 
-    node.destroy_node()
+    # node.destroy_node()
     node.current_configuration = target_positions[-1][::]
     node = InverseKinematics("arm_1_link", "C")
 
@@ -176,15 +177,16 @@ def main():
             break
 
     target_positions.append(target_position)
+    future = node.gripper_motion("open")
+    rclpy.spin_until_future_complete(node, future)
+    time.sleep(2)
     node2 = MinimalPublisher(target_positions)#[-1][:7])
     rclpy.spin(node2)
 
     node.destroy_node()
 
     # open the gripper
-    # future = nodeA.gripper_motion("open")
-    # rclpy.spin_until_future_complete(nodeA, future)
-    # time.sleep(5)
+    
     print("targ ", target_positions)
     
 

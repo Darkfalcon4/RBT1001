@@ -10,6 +10,9 @@ from rclpy.node import Node
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import JointState
+from play_motion2_msgs.action import PlayMotion2
+from rclpy.action import ActionClient
+
 
 # max speeds for each joint
 max_speed = np.array([
@@ -33,6 +36,7 @@ class MinimalPublisher(Node):
         
         # publisher for joint command
         self.publisher_ = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
+        self.gripper_action = ActionClient(self, PlayMotion2, 'play_motion2')
 
         self.last_state = None
         self.joint_idx = {}
@@ -72,19 +76,36 @@ class MinimalPublisher(Node):
             # ]
             # target_positions.append(initial_pos)
             for x in range(3):
-                initial_position = target_positions[x-1][::]
+                # initial_position = target_positions[x-1][::]
                 #global x
-                trajectory, times = self.compute_joint_trajectory(initial_position, target_positions[x][::])
+                # open the gripper
+                # future = self.gripper_motion("open")
+                # rclpy.spin_until_future_complete(self, future)
+                # time.sleep(2)
+                trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
                 traj_msg = self.to_JointTrajectory(trajectory, times)
-                viz.display(self, traj_msg)
-                viz.display(self, traj_msg)
-                # time.sleep(5)
-                self.plot(trajectory, times)
+                # viz.display(self, traj_msg)
+                # viz.display(self, traj_msg)
+                # # time.sleep(5)
+                # self.plot(trajectory, times)
                 self.send_commands(traj_msg)
                 self.i += 1
                 time.sleep(total_time+1)
+                if x == 2:
+                    break
+            future = self.gripper_motion("close")
+            rclpy.spin_until_future_complete(self, future)
+            time.sleep(2)
 
-    def compute_joint_trajectory(self, initial_position, target_positions):
+    def gripper_motion(self, motion="close"):
+            goal_msg = PlayMotion2.Goal()
+            goal_msg.motion_name = motion
+            self.gripper_action.wait_for_server()
+
+            return self.gripper_action.send_goal_async(goal_msg)
+
+    
+    def compute_joint_trajectory(self, target_positions):
         global total_time
         #global target_position
         # target_positions = self.target_positions
@@ -239,19 +260,19 @@ class MinimalPublisher(Node):
         self.last_state = msg
         
 
-def main(args=None):
-    rclpy.init(args=args)
+# def main(args=None):
+#     rclpy.init(args=args)
 
-    minimal_publisher = MinimalPublisher()
+#     minimal_publisher = MinimalPublisher()
 
-    rclpy.spin(minimal_publisher)
+#     rclpy.spin(minimal_publisher)
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
-    rclpy.shutdown()
+#     # Destroy the node explicitly
+#     # (optional - otherwise it will be done automatically
+#     # when the garbage collector destroys the node object)
+#     minimal_publisher.destroy_node()
+#     rclpy.shutdown()
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
