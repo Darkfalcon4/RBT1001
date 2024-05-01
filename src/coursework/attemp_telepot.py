@@ -39,14 +39,7 @@ class MinimalPublisher(Node):
             return None, None
         
         initial_position = [self.last_state.position[idx] for idx in self.joint_idx.values()]
-        # Adding precision control near the target position
-        close_approach = np.linalg.norm(np.array(initial_position) - np.array(target_position)) < 0.1
-        if close_approach:
-            adjusted_speed = max_speed * 0.5  # Slow down by 50% when close to the target
-        else:
-            adjusted_speed = max_speed
-
-        trajectory, times = trap.compute_trajectory(initial_position, target_position, adjusted_speed, max_acceleration)
+        trajectory, times = trap.compute_trajectory(initial_position, target_position, max_speed, max_acceleration)
         
         if trajectory is None:
             self.get_logger().error("Failed to compute trajectory")
