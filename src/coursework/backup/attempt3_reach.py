@@ -63,40 +63,30 @@ class MinimalPublisher(Node):
             return 
 
         if self.i == 0:
+            #get target position array
             target_positions = self.target_positions
-            # initial_state = self.last_state
-            # initial_pos = [
-            #     initial_state.position[self.joint_idx["arm_1_joint"]],
-            #     initial_state.position[self.joint_idx["arm_2_joint"]],
-            #     initial_state.position[self.joint_idx["arm_3_joint"]],
-            #     initial_state.position[self.joint_idx["arm_4_joint"]],
-            #     initial_state.position[self.joint_idx["arm_5_joint"]],
-            #     initial_state.position[self.joint_idx["arm_6_joint"]],
-            #     initial_state.position[self.joint_idx["arm_7_joint"]]
-            # ]
-            # target_positions.append(initial_pos)
+
             for x in range(3):
-                # initial_position = target_positions[x-1][::]
-                #global x
-                # open the gripper
-                # future = self.gripper_motion("open")
-                # rclpy.spin_until_future_complete(self, future)
-                # time.sleep(2)
+                #take part of the target array required for the next point
                 trajectory, times = self.compute_joint_trajectory(target_positions[x][::])
+                #move joint to planned position using calculations
                 traj_msg = self.to_JointTrajectory(trajectory, times)
-                # viz.display(self, traj_msg)
-                # viz.display(self, traj_msg)
-                # # time.sleep(5)
-                # self.plot(trajectory, times)
+                viz.display(self, traj_msg)
+                viz.display(self, traj_msg)
+                #Plot trajectory graphs
+                self.plot(trajectory, times)
+                #send commands to robot to move join
                 self.send_commands(traj_msg)
                 self.i += 1
                 time.sleep(total_time+1)
                 if x == 2:
                     break
+            #closes gripper
             future = self.gripper_motion("close")
             rclpy.spin_until_future_complete(self, future)
             time.sleep(2)
 
+    #controls gripper state
     def gripper_motion(self, motion="close"):
             goal_msg = PlayMotion2.Goal()
             goal_msg.motion_name = motion
@@ -107,14 +97,6 @@ class MinimalPublisher(Node):
     
     def compute_joint_trajectory(self, target_positions):
         global total_time
-        #global target_position
-        # target_positions = self.target_positions
-        # target_positionA = target_positions[0][:7]
-        # target_positionB = target_positions[1][:7]
-        # target_positionC = target_positions[2][:7]
-        
-        # target_positionB = target_positions[1]
-        # target_positionC = target_positions[2]
 
         # get initial position
         initial_state = self.last_state
@@ -158,18 +140,6 @@ class MinimalPublisher(Node):
 
                 ts, q, qd, ok = trap.lspb(total_time, q0, qf, new_qdmax, ticks)
                 self.get_logger().info('{}: {}'.format(i, ok))
-                # # hack continuing at max speed
-                # new_ticks = int(abs(qf - q0) / ((total_time / ticks) * abs(qdmax))) + 1
-                # if new_ticks > 1:
-                #     self.get_logger().info('{}_______'.format("Second attempt"))
-                #     new_time = total_time / ticks * new_ticks
-                #     ts, q, qd, ok = trap.lspb(new_time, q0, qf, qdmax, new_ticks)
-                #     self.get_logger().info('{}: {}'.format(i, ok))
-                #     # add the missing ticks by keeping the joint still 
-                #     for j in range(new_ticks, ticks):
-                #         ts.append(times[j])
-                #         q.append(q[j-1])
-                #         qd.append(0.0)
 
             if ts is not None:
                 trajectory.update({
@@ -258,21 +228,3 @@ class MinimalPublisher(Node):
             ))
 
         self.last_state = msg
-        
-
-# def main(args=None):
-#     rclpy.init(args=args)
-
-#     minimal_publisher = MinimalPublisher()
-
-#     rclpy.spin(minimal_publisher)
-
-#     # Destroy the node explicitly
-#     # (optional - otherwise it will be done automatically
-#     # when the garbage collector destroys the node object)
-#     minimal_publisher.destroy_node()
-#     rclpy.shutdown()
-
-
-# if __name__ == '__main__':
-#     main()

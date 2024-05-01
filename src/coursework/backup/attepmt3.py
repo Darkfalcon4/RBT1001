@@ -120,12 +120,12 @@ class InverseKinematics(Node):
             q6 = 0.
             q7 = 0.
             self.target_configuration = [q1,q2,q3,q4,q5,q6,q7]
-
+            # get target position of desired object and set positional array as global
             print(self.target_configuration)
             global target_position
             target_position = self.target_configuration
             
-
+    #control gripper state
     def gripper_motion(self, motion="close"):
         goal_msg = PlayMotion2.Goal()
         goal_msg.motion_name = motion
@@ -137,22 +137,17 @@ def main():
     target_positions = []
     rclpy.init()
 
+    #finding target point A
     node = InverseKinematics("arm_1_link", "A")
-    # node2 = MinimalPublisher(target_position)
-
+    #Loops until target point is found
     while node.target_configuration is None:
         try:
             rclpy.spin_once(node)
         except KeyboardInterrupt:
             break
-    
-    
+    #add new target point to array
     target_positions.append(target_position)
-    # node2 = MinimalPublisher(target_positions[-1][:7])
-    # rclpy.spin(node2)
-
-    # node.destroy_node()
-    # node.current_configuration = target_positions[-1][::]
+    #finding target point B
     node = InverseKinematics("arm_1_link", "B")
 
     while node.target_configuration is None:
@@ -162,11 +157,7 @@ def main():
             break
 
     target_positions.append(target_position)
-    # node2 = MinimalPublisher(target_positions[-1][:7])
-    # rclpy.spin(node2)
-    # node2.destroy_node()
-
-    # node.destroy_node()
+    #finding target point C
     node.current_configuration = target_positions[-1][::]
     node = InverseKinematics("arm_1_link", "C")
 
@@ -177,26 +168,15 @@ def main():
             break
 
     target_positions.append(target_position)
+    #set gripper state to closed
     future = node.gripper_motion("open")
     rclpy.spin_until_future_complete(node, future)
     time.sleep(2)
-    node2 = MinimalPublisher(target_positions)#[-1][:7])
+    #call the class to plan trajectory and move joints
+    node2 = MinimalPublisher(target_positions)
     rclpy.spin(node2)
 
     node.destroy_node()
-
-    # open the gripper
-    
-    print("targ ", target_positions)
-    
-
-    # close the gripper
-    # future = nodeA.gripper_motion("close")
-    # rclpy.spin_until_future_complete(nodeA, future)
-    # time.sleep(5)
-
-    # TODO execute other trajectories
-
 
     rclpy.shutdown()
 
