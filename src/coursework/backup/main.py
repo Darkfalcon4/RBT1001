@@ -17,7 +17,7 @@ import viz_trajectory as viz
 
 # import our own modules
 from transformations import HT, HR
-from attempt3_reach import MinimalPublisher
+from reach import MinimalPublisher
 
 class InverseKinematics(Node):
     def __init__(self, base_frame, target_frame):
